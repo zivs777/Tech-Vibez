@@ -1,114 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TechVibe ⚡ - Premium Tech at $199</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechVibe ⚡ - Premium Tech at $199</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card-hover:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useContext, createContext } = React;
+<script type="text/babel">
+const { useState, useEffect, useContext, createContext } = React;
 
-        // Simple Hash Router
-        const useHashLocation = () => {
-            const [location, setLocation] = useState(window.location.hash.slice(1) || '/');
+// Hardcoded Products Data
+const sampleProducts = [
+  { id:"galaxy-s24-ultra", name:"Galaxy S24 Ultra", description:"AI-powered photography meets titanium toughness 📸", price:"199.00", category:"phones", imageUrl:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=600&h=600" },
+  { id:"pixel-8-pro", name:"Pixel 8 Pro", description:"Google's magic in your pocket ✨", price:"199.00", category:"phones", imageUrl:"https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=600&h=600" },
+  { id:"oneplus-12", name:"OnePlus 12", description:"Never settle for ordinary speed 🚀", price:"199.00", category:"phones", imageUrl:"https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?auto=format&fit=crop&w=600&h=600" },
+  { id:"surface-pro-11", name:"Surface Pro 11", description:"Laptop power meets tablet flexibility 💪", price:"199.00", category:"tablets", imageUrl:"https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&h=600" },
+  { id:"galaxy-tab-s9", name:"Galaxy Tab S9 Ultra", description:"Create without limits on 14.6 inches 🎨", price:"199.00", category:"tablets", imageUrl:"https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=600&h=600" },
+  { id:"steamdeck-oled", name:"Steam Deck OLED", description:"Gaming on the go just got gorgeous 🎮", price:"199.00", category:"tablets", imageUrl:"https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=600&h=600" },
+  { id:"framework-laptop-16", name:"Framework Laptop 16", description:"Modular laptop that evolves with you 🔧", price:"199.00", category:"laptops", imageUrl:"https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=600&h=600" },
+  { id:"sony-wh1000xm5", name:"Sony WH-1000XM5", description:"Industry-leading noise cancellation 🎧", price:"199.00", category:"accessories", imageUrl:"https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=600&h=600" }
+];
 
-            useEffect(() => {
-                const onHashChange = () => {
-                    setLocation(window.location.hash.slice(1) || '/');
-                };
-                window.addEventListener('hashchange', onHashChange);
-                return () => window.removeEventListener('hashchange', onHashChange);
-            }, []);
+// Simple Router
+const useLocation = () => {
+  const [location, setLocation] = useState(window.location.pathname);
+  useEffect(() => {
+    const handlePopState = () => setLocation(window.location.pathname);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+  return [location, (path) => { window.history.pushState({}, '', path); setLocation(path); }];
+};
 
-            const navigate = (hashPath) => {
-                window.location.hash = hashPath;
-            };
+const Link = ({ href, className, children, onClick }) => (
+  <a href={href} className={className} onClick={(e) => {
+    e.preventDefault();
+    window.history.pushState({}, '', href);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    onClick && onClick();
+  }}>{children}</a>
+);
 
-            return [location, navigate];
-        };
+// Cart Context
+const CartContext = createContext();
 
-        const Link = ({ href, className, children, onClick }) => (
-            <a
-                href={`#${href}`}
-                className={className}
-                onClick={(e) => {
-                    e.preventDefault();
-                    window.location.hash = href;
-                    window.dispatchEvent(new HashChangeEvent('hashchange'));
-                    if (onClick) onClick();
-                }}
-            >
-                {children}
-            </a>
-        );
+function CartProvider({ children }) {
+  const [cartItems, setCartItems] = useState([]);
 
-        // Cart Context and other components remain exactly the same as before
-        // ... Products, CartProvider, Navigation, ProductCard, SpinWheel, Home, Cart, Footer ...
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCartItems(savedCart);
+  }, []);
 
-        // Paste your products data, CartProvider, Navigation, ProductCard, SpinWheel, Home, Cart, Footer components here
-        // (Exactly the same as your previous code, no changes needed for these)
+  const saveCart = (items) => {
+    setCartItems(items);
+    localStorage.setItem('cart', JSON.stringify(items));
+  };
 
-        // For brevity, I’ll include them as-is (you can copy from your current code)...
+  const addToCart = (productId, quantity = 1) => {
+    const existing = cartItems.find(item => item.productId === productId);
+    let newCart;
+    if (existing) {
+      newCart = cartItems.map(item => item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item);
+    } else {
+      newCart = [...cartItems, { productId, quantity }];
+    }
+    saveCart(newCart);
+  };
 
-        // --- Your existing components here ---
-        // For example:
-        // const products = new Map([...]);
-        // function CartProvider() { ... }
-        // function Navigation() { ... }
-        // function ProductCard() { ... }
-        // function SpinWheel() { ... }
-        // function Home() { ... }
-        // function Cart() { ... }
-        // function Footer() { ... }
+  const updateQuantity = (productId, quantity) => {
+    if (quantity <= 0) {
+      saveCart(cartItems.filter(item => item.productId !== productId));
+    } else {
+      saveCart(cartItems.map(item => item.productId === productId ? { ...item, quantity } : item));
+    }
+  };
 
-        // Main App with Hash Routing
-        function App() {
-            const [location] = useHashLocation();
+  const clearCart = () => saveCart([]);
 
-            let component;
-            if (location === '/' || location === '') component = Home;
-            else if (location === '/phones') component = () => React.createElement(Home, { category: 'phones' });
-            else if (location === '/tablets') component = () => React.createElement(Home, { category: 'tablets' });
-            else if (location === '/laptops') component = () => React.createElement(Home, { category: 'laptops' });
-            else if (location === '/accessories') component = () => React.createElement(Home, { category: 'accessories' });
-            else if (location === '/cart') component = Cart;
-            else if (location === '/spin') component = SpinWheel;
-            else component = Home;
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-            return React.createElement(CartProvider, {},
-                React.createElement('div', { className: 'min-h-screen flex flex-col' },
-                    React.createElement(Navigation),
-                    React.createElement('main', { className: 'flex-1' }, React.createElement(component)),
-                    React.createElement(Footer)
-                )
+  return <CartContext.Provider value={{ cartItems, addToCart, updateQuantity, clearCart, cartCount }}>{children}</CartContext.Provider>;
+}
+
+const useCart = () => useContext(CartContext);
+
+// Components
+function Navigation() {
+  const { cartCount } = useCart();
+  return (
+    <nav className="gradient-bg shadow-lg sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <Link href="/" className="text-white text-2xl font-bold">TechVibe ⚡</Link>
+        <div className="hidden md:flex items-center space-x-8">
+          <Link href="/phones" className="text-white hover:text-blue-200">Phones</Link>
+          <Link href="/tablets" className="text-white hover:text-blue-200">Tablets</Link>
+          <Link href="/laptops" className="text-white hover:text-blue-200">Laptops</Link>
+          <Link href="/accessories" className="text-white hover:text-blue-200">Accessories</Link>
+          <Link href="/spin" className="text-white hover:text-blue-200">Spin & Win 🎲</Link>
+        </div>
+        <Link href="/cart" className="text-white hover:text-blue-200 flex items-center space-x-2">
+          <span>Cart</span>
+          {cartCount > 0 && <span className="bg-red-500 text-white rounded-full px-2 py-1 text-sm">{cartCount}</span>}
+        </Link>
+      </div>
+    </nav>
+  );
+}
+
+function ProductCard({ product }) {
+  const { addToCart } = useCart();
+  return (
+    <div className="bg-white rounded-xl shadow-lg card-hover overflow-hidden">
+      <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover" />
+      <div className="p-6">
+        <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+        <p className="text-gray-600 mb-4">{product.description}</p>
+        <div className="flex justify-between items-center">
+          <span className="text-3xl font-bold text-purple-600">${product.price}</span>
+          <button onClick={() => addToCart(product.id)} className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Home({ category }) {
+  const products = category ? sampleProducts.filter(p => p.category === category) : sampleProducts;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="gradient-bg text-white py-20 text-center">
+        <h1 className="text-5xl font-bold mb-6">TechVibe ⚡</h1>
+        <p className="text-xl mb-8">Premium tech devices at incredible $199 pricing</p>
+        <Link href="/spin" className="bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100">Try Spin & Win! 🎲</Link>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {products.map(product => <ProductCard key={product.id} product={product} />)}
+      </div>
+    </div>
+  );
+}
+
+function Cart() {
+  const { cartItems, updateQuantity, clearCart } = useCart();
+  const productsMap = Object.fromEntries(sampleProducts.map(p => [p.id, p]));
+  const total = cartItems.reduce((sum, item) => sum + parseFloat(productsMap[item.productId].price) * item.quantity, 0);
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 max-w-4xl mx-auto px-4">
+      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+      {cartItems.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-xl text-gray-600 mb-8">Your cart is empty</p>
+          <Link href="/" className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-lg">Continue Shopping</Link>
+        </div>
+      ) : (
+        <>
+          {cartItems.map(item => {
+            const product = productsMap[item.productId];
+            return (
+              <div key={item.productId} className="bg-white rounded-lg shadow-md p-6 mb-4 flex items-center space-x-6">
+                <img src={product.imageUrl} alt={product.name} className="w-24 h-24 object-cover rounded" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold">{product.name}</h3>
+                  <p className="text-gray-600">{product.description}</p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="bg-gray-200 px-3 py-1 rounded">-</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="bg-gray-200 px-3 py-1 rounded">+</button>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold text-purple-600">${(parseFloat(product.price) * item.quantity).toFixed(2)}</p>
+                </div>
+              </div>
             );
-        }
+          })}
+          <div className="bg-white rounded-lg shadow-md p-6 mt-8 flex justify-between items-center">
+            <span className="text-2xl font-bold">Total: ${total.toFixed(2)}</span>
+            <div className="flex space-x-4">
+              <button onClick={clearCart} className="bg-red-500 text-white px-6 py-3 rounded-lg">Clear Cart</button>
+              <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-lg">Checkout</button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
-        // Render the complete app
-        ReactDOM.render(React.createElement(App), document.getElementById('root'));
-    </script>
+function Footer() {
+  return (
+    <footer className="bg-gray-900 text-white py-8 text-center">
+      <p className="text-lg mb-2">© 2024 TechVibe ⚡ - Premium Tech at Unbeatable Prices</p>
+      <p className="text-gray-400">Built by Zivyan Singh</p>
+    </footer>
+  );
+}
+
+function App() {
+  const [location] = useLocation();
+  let component;
+  if (location === '/') component = <Home />;
+  else if (location === '/phones') component = <Home category="phones" />;
+  else if (location === '/tablets') component = <Home category="tablets" />;
+  else if (location === '/laptops') component = <Home category="laptops" />;
+  else if (location === '/accessories') component = <Home category="accessories" />;
+  else if (location === '/cart') component = <Cart />;
+  else component = <Home />;
+  return (
+    <CartProvider>
+      <Navigation />
+      <main>{component}</main>
+      <Footer />
+    </CartProvider>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
 </body>
 </html>
