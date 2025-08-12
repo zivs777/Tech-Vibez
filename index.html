@@ -1,114 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TechVibe ⚡ - Premium Tech at $199</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TechVibe ⚡ - Premium Tech at $199</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useContext, createContext } = React;
+  <script type="text/babel">
+    const { useState, useEffect, useContext, createContext } = React;
 
-        // Simple Hash Router
-        const useHashLocation = () => {
-            const [location, setLocation] = useState(window.location.hash.slice(1) || '/');
+    // ----------- Hash Router -----------
+    const useHashLocation = () => {
+      const [location, setLocation] = useState(window.location.hash.slice(1) || '/');
 
-            useEffect(() => {
-                const onHashChange = () => {
-                    setLocation(window.location.hash.slice(1) || '/');
-                };
-                window.addEventListener('hashchange', onHashChange);
-                return () => window.removeEventListener('hashchange', onHashChange);
-            }, []);
-
-            const navigate = (hashPath) => {
-                window.location.hash = hashPath;
-            };
-
-            return [location, navigate];
+      useEffect(() => {
+        const onHashChange = () => {
+          setLocation(window.location.hash.slice(1) || '/');
         };
+        window.addEventListener('hashchange', onHashChange);
+        return () => window.removeEventListener('hashchange', onHashChange);
+      }, []);
 
-        const Link = ({ href, className, children, onClick }) => (
-            <a
-                href={`#${href}`}
-                className={className}
-                onClick={(e) => {
-                    e.preventDefault();
-                    window.location.hash = href;
-                    window.dispatchEvent(new HashChangeEvent('hashchange'));
-                    if (onClick) onClick();
-                }}
-            >
-                {children}
-            </a>
-        );
+      const navigate = (hashPath) => {
+        window.location.hash = hashPath;
+      };
 
-        // Cart Context and other components remain exactly the same as before
-        // ... Products, CartProvider, Navigation, ProductCard, SpinWheel, Home, Cart, Footer ...
+      return [location, navigate];
+    };
 
-        // Paste your products data, CartProvider, Navigation, ProductCard, SpinWheel, Home, Cart, Footer components here
-        // (Exactly the same as your previous code, no changes needed for these)
+    const Link = ({ href, className, children, onClick }) => (
+      <a
+        href={`#${href}`}
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.hash = href;
+          window.dispatchEvent(new HashChangeEvent('hashchange'));
+          if (onClick) onClick();
+        }}
+      >
+        {children}
+      </a>
+    );
 
-        // For brevity, I’ll include them as-is (you can copy from your current code)...
+    // ----------- Products Data -----------
+    const products = new Map();
 
-        // --- Your existing components here ---
-        // For example:
-        // const products = new Map([...]);
-        // function CartProvider() { ... }
-        // function Navigation() { ... }
-        // function ProductCard() { ... }
-        // function SpinWheel() { ... }
-        // function Home() { ... }
-        // function Cart() { ... }
-        // function Footer() { ... }
+    const sampleProducts = [
+      // PHONES - All at $199
+      {
+        id: "galaxy-s24-ultra",
+        name: "Galaxy S24 Ultra",
+        description: "AI-powered photography meets titanium toughness 📸",
+        price: "199.00",
+        category: "phones",
+        imageUrl: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 50
+      },
+      {
+        id: "pixel-8-pro",
+        name: "Pixel 8 Pro",
+        description: "Google's magic in your pocket ✨",
+        price: "199.00",
+        category: "phones",
+        imageUrl: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 75
+      },
+      {
+        id: "oneplus-12",
+        name: "OnePlus 12",
+        description: "Never settle for ordinary speed 🚀",
+        price: "199.00",
+        category: "phones",
+        imageUrl: "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 40
+      },
+      // TABLETS
+      {
+        id: "surface-pro-11",
+        name: "Surface Pro 11",
+        description: "Laptop power meets tablet flexibility 💪",
+        price: "199.00",
+        category: "tablets",
+        imageUrl: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 25
+      },
+      {
+        id: "galaxy-tab-s9",
+        name: "Galaxy Tab S9 Ultra",
+        description: "Create without limits on 14.6 inches 🎨",
+        price: "199.00",
+        category: "tablets",
+        imageUrl: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 35
+      },
+      {
+        id: "steamdeck-oled",
+        name: "Steam Deck OLED",
+        description: "Gaming on the go just got gorgeous 🎮",
+        price: "199.00",
+        category: "tablets",
+        imageUrl: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 40
+      },
+      // LAPTOPS
+      {
+        id: "framework-laptop-16",
+        name: "Framework Laptop 16",
+        description: "Modular laptop that evolves with you 🔧",
+        price: "199.00",
+        category: "laptops",
+        imageUrl: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 20
+      },
+      // ACCESSORIES
+      {
+        id: "sony-wh1000xm5",
+        name: "Sony WH-1000XM5",
+        description: "Industry-leading noise cancellation 🎧",
+        price: "199.00",
+        category: "accessories",
+        imageUrl: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600",
+        inStock: 100
+      }
+    ];
 
-        // Main App with Hash Routing
-        function App() {
-            const [location] = useHashLocation();
+    sampleProducts.forEach(product => products.set(product.id, product));
 
-            let component;
-            if (location === '/' || location === '') component = Home;
-            else if (location === '/phones') component = () => React.createElement(Home, { category: 'phones' });
-            else if (location === '/tablets') component = () => React.createElement(Home, { category: 'tablets' });
-            else if (location === '/laptops') component = () => React.createElement(Home, { category: 'laptops' });
-            else if (location === '/accessories') component = () => React.createElement(Home, { category: 'accessories' });
-            else if (location === '/cart') component = Cart;
-            else if (location === '/spin') component = SpinWheel;
-            else component = Home;
+    // ----------- Cart Context -----------
+    const CartContext = createContext();
 
-            return React.createElement(CartProvider, {},
-                React.createElement('div', { className: 'min-h-screen flex flex-col' },
-                    React.createElement(Navigation),
-                    React.createElement('main', { className: 'flex-1' }, React.createElement(component)),
-                    React.createElement(Footer)
-                )
-            );
+    function CartProvider({ children }) {
+      const [cartItems, setCartItems] = useState([]);
+      const [sessionId, setSessionId] = useState('');
+
+      useEffect(() => {
+        const storedSessionId = localStorage.getItem('session-id') || Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('session-id', storedSessionId);
+        setSessionId(storedSessionId);
+        fetchCart(storedSessionId);
+      }, []);
+
+      const fetchCart = async (sessionId) => {
+        try {
+          // Since this is static, simulate cart with localStorage:
+          const storedCart = JSON.parse(localStorage.getItem(`cart-${sessionId}`)) || [];
+          // Add product data to cart items
+          const enriched = storedCart.map(item => ({
+            ...item,
+            product: products.get(item.productId),
+          }));
+          setCartItems(enriched);
+        } catch (error) {
+          console.error('Failed to fetch cart:', error);
         }
+      };
 
-        // Render the complete app
-        ReactDOM.render(React.createElement(App), document.getElementById('root'));
-    </script>
-</body>
-</html>
+      const saveCart = (items) => {
+        localStorage.setItem(`cart-${sessionId}`, JSON.stringify(items));
+      };
+
+      const addToCart = (productId, quantity = 1) => {
+        const existingItem = cartItems.find(item => item.productId === productId);
+        let newCart;
+        if (existingItem) {
+          newCart = cartItems.map(item =>
+            item.productId === productId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        } else {
+          newCart = [...cartItems, { id: Math.random().toString(36).substr(2, 9), productId, quantity, product: products.get(productId) }];
+        }
+        setCartItems(newCart);
+        saveCart(newCart);
+      };
+
+      const updateQuantity = (id, quantity) => {
+        let newCart;
+        if (quantity <= 0) {
+          newCart = cartItems.filter(item => item.id !== id);
+        } else {
+          newCart = cartItems.map(item => item.id === id ? { ...item, quantity } : item);
+        }
+        setCartItems(newCart);
+        saveCart(newCart);
+      };
+
+      const clearCart = () => {
+        setCartItems([]);
+        saveCart([]);
+      };
+
+      const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+      return (
+        <CartContext.Provider value={{ cartItems, addToCart, updateQuantity, clearCart, cartCount }}>
+          {children}
+        </CartContext.Provider>
+      );
+    }
+
+    const useCart = () => useContext(CartContext);
+
+    // ----------- Navigation -----------
+    function Navigation() {
+      const [location] = useHashLocation();
+      const { cartCount } = useCart();
+
+      return (
+        <nav className="gradient-bg shadow-lg sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link href="/" className="text-white text-2xl font-bold">TechVibe ⚡</Link>
+              <div className="hidden md:flex items-center space-x-8">
+                <Link href="/phones" className="text-white hover:text-blue-200 font-medium">Phones</Link>
+                <Link href="/tablets" className="text-white hover:text-blue-200 font-medium">Tablets</Link>
+                <Link href="/laptops" className="text-white hover:text-blue-200 font-medium">Laptops</Link>
+                <Link href="/accessories" className="text-white hover:text-blue-200 font-medium">Accessories</Link>
+                <Link href="/spin" className="text-white hover:text-blue-200 font-medium">Spin & Win 🎲</Link>
+              </div>
+              <Link href="/cart" className="text-white hover:text-blue-200 font-medium flex items-center space-x-2">
+                <span>Cart</span>
+                {cartCount > 0 && (
+                  <span className="bg-red-500 text-white rounded-full px-2 py-1 text-sm">{cartCount}</span>
+                )}
+              </Link>
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    // ----------- Product Card -----------
+    function ProductCard({ product }) {
+      const { addToCart } = useCart();
+      return (
+        <div className="bg-white rounded-xl shadow-lg card-hover overflow-hidden">
+          <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover" />
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+            <p className="text-gray-600 mb-4">{product.description}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-3xl font-bold text-purple-600">${product.price}</span>
+              <button
+                onClick={() => addToCart(product.id)}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ----------- Spin Wheel -----------
+    function SpinWheel() {
+      const [isSpinning, setIsSpinning] = useState(false);
+      const [rotation, setRotation] = useState(0);
+      const [spinsLeft, setSpinsLeft] = useState(3);
+
+      const prizes = [
+        { label: "Free Phone!", icon: "🎁", color: "#FF6B6B" },
+        { label: "50% Off", icon: "🔥", color: "#4ECDC4" },
+        { label: "15% Off", icon: "💫", color: "#45B7D1" },
+        { label: "Free Shipping", icon: "🚚", color: "#96CEB4" },
+        { label: "25% Off", icon: "✨", color: "#FFEAA7" },
+        { label: "Try Again", icon: "🎯", color: "#DDA0DD" },
+        { label: "Free Tablet!", icon: "🎉", color: "#FF8A80" },
+        { label: "10% Off", icon: "💎", color: "#81C784" }
+      ];
+
+      const spinWheel = () => {
+        if (isSpinning || spinsLeft <= 0) return;
+        setIsSpinning(true);
+        const finalRotation = 360 * (5 + Math.random() * 3) + Math.random() * 360;
+        setRotation(prev => prev + finalRotation);
+
+        setTimeout(() => {
+          setIsSpinning(false);
+          setSpinsLeft(prev => prev - 1);
+          const segmentSize = 360 / prizes.length;
+          const winningIndex = Math.floor(((360 - (finalRotation % 360)) / segmentSize)) % prizes.length;
+          alert(`🎉 You won: ${prizes[winningIndex].label}!`);
+        }, 3000);
+      };
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-cyan-100 py-16">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">Spin & Win! 🎲</h1>
+            <p className="text-xl text-gray-600 mb-8">Test your luck and win amazing prizes!</p>
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div
+                  className="w-80 h-80 rounded-full border-8 border-white shadow-2xl overflow-hidden"
+                  style={{
+                    transform: `rotate(${rotation}deg)`,
+                    transition: isSpinning ? 'transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+                    background: `conic-gradient(${prizes.map((p, i) => `${p.color} ${i * 45}deg ${(i + 1) * 45}deg`).join(', ')})`
+                  }}
+                >
+                  {prizes.map((prize, index) => (
+                    <div
+                      key={index}
+                      className="absolute w-full h-full flex items-center justify-center text-white font-bold text-center"
+                      style={{ transform: `rotate(${index * 45 + 22.5}deg)` }}
+                    >
+                      <div style={{ transform: 'translateY(-80px)' }}>
+                        <div className="text-2xl mb-1">{prize.icon}</div>
+                        <div className="text-xs">{prize.label}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={spinWheel}
+              disabled={isSpinning || spinsLeft <= 0}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-12 py-4 text-xl font-bold rounded-lg disabled:opacity-50"
+            >
+              {isSpinning ? 'Spinning...' : spinsLeft > 0 ? 'SPIN THE WHEEL!' : 'No Spins Left'}
+            </button>
+            <p className="mt-4 text-lg">Spins left: {spinsLeft}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // ----------- Home -----------
+    function Home({ category }) {
+      const [productsList, setProductsList] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        setLoading(true);
+        // Since this is static, just filter local products:
+        let filtered;
+        if (category) {
+          filtered = Array.from(products.values()).filter(p => p.category === category);
+        } else {
+          filtered = Array.from(products.values());
+        }
+        setProductsList(filtered);
+        setLoading(false);
+      }, [category]);
+
+      if (loading) return <div className="flex justify-center items-center min-h-screen">
+        <div className="text-2xl font-bold text-gray-600">Loading...</div>
+      </div>;
+
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="gradient-bg text-white py-20">
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">TechVibe ⚡</h1>
+              <p className="text-xl md:text-2xl mb-8">Premium tech devices at incredible $199 pricing</p>
+              <Link href="/spin" className="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors">Try Spin & Win! 🎲</Link>
+            </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 py-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              {category ? `${category.charAt(0).toUpperCase() + category.slice(1)}` : 'All Products'}
+            </h2>
+            <div className
